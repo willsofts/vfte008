@@ -1,0 +1,13 @@
+#menubarlayer { border : 2px solid #2F4F4F; overflow: auto; padding: 5px; min-height: 500px; max-height: 500px; overflow-y: auto; }
+a.selected-linker span { text-decoration: underline; }
+div.first-row-layer { padding-top:10px; padding-bottom:0px; }
+#permitfieldset { height:30px; margin-left: 20px; margin-right: 20px; }
+button.ctrl-linker { width:40px; }
+#propertyfieldset { height:40px; }
+#permissionfieldset { height:30px; }
+#buttoncontrollayer { padding-top: 15px; padding-right:0px; }
+.autocomplete-fixed-height { max-height: 350px; margin-bottom: 10px; overflow-x: auto; overflow-y: auto; }
+#searchpanel { margin-bottom: 0px; }
+#permitinfolayer { margin-bottom: 15px; }
+#permitinfolayerdialog { margin-bottom: 15px; margin-left: 15px; }
+.btn-explore { margin-top: 5px; }
