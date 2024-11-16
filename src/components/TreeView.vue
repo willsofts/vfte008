@@ -1,6 +1,6 @@
 <template>
     <li class="dropdown">
-        <a href="javascript:void(0);" :class="[getNodeClass(node), getActiveNode(node)]" @click="nodeSelected($event,node,parent)" :title="node.itemname"><span class="span-menu">{{ node.text }}</span></a>
+        <a href="javascript:void(0);" :class="[getNodeClass(node), getActiveNode(node)]" @click="nodeSelected(node,parent)" :title="node.itemname"><span class="span-menu">{{ node.text }}</span></a>
         <ul v-if="node.items && node.items.length" class="panel-collapse" role="menu">
           <TreeView v-for="(child, index) in node.items" :key="index" :node="child" :parent="node" @node-selected="childSelected" :activeNode="activeNode" @update-active-node="updateActiveNode" />
         </ul>
@@ -28,9 +28,7 @@ export default {
     getActiveNode(node) {
       return this.activeNode == node ? "selected-linker" : "";
     },
-    nodeSelected(event,curnode,parentnode) {
-        console.log("event:",event);
-        console.log("event.currentTarget",event.currentTarget);
+    nodeSelected(curnode,parentnode) {
         this.$emit('node-selected',curnode,parentnode);
         this.$emit("update-active-node",curnode);
     },

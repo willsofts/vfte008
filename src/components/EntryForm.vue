@@ -30,7 +30,9 @@
                     <label for="progid" class="control-label">{{ labels.progid_label }}</label>
                 </div>
                 <div class="col-md-5 col-height">
+                  <div class="input-group has-validation" :class="{'has-error': v$.progid.$error}">
                     <input type="text" ref="progid" v-model="itemData.progid" id="progid" class="form-control input-md alert-input input-entry" maxlength="20" :disabled="isDisabledItemField" /> 
+                  </div>
                 </div>
             </div>
             <div class="row row-heighter center-block">
@@ -38,7 +40,9 @@
                     <label for="progtitle" class="control-label">{{ labels.progtitle_label }}</label>
                 </div>
                 <div class="col-md-9 col-height">
+                  <div class="input-group has-validation" :class="{'has-error': v$.progtitle.$error}">
                     <input ref="progtitle" type="text" v-model="itemData.progtitle" id="progtitle" class="form-control input-md alert-input" maxlength="100" />
+                  </div>
                 </div>
             </div>
             <div class="row">
@@ -86,7 +90,9 @@
 </teleport>
 </template>
 <script>
-import { ref, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
+import { useVuelidate } from '@vuelidate/core';
+import { required, helpers } from '@vuelidate/validators';
 import $ from "jquery";
 import { DEFAULT_CONTENT_TYPE, getApiUrl, disableControls }  from '@willsofts/will-app';
 import { startWaiting, stopWaiting, submitFailure, detectErrorResponse, serializeParameters }  from '@willsofts/will-app';
@@ -118,7 +124,7 @@ export default {
     dataCategory: Object
   },
   emits: ["data-saved"],
-  setup() {
+  setup(props) {
     const localData = ref({ ...defaultData }); 
     const disabledKeyField = ref(true);
     const itemData = ref({...defaultItemData});
@@ -128,10 +134,29 @@ export default {
     const currentNode = ref(null);
     const parentNode = ref(null);
     const permits = ref({});
-    return { localData, itemData, menuData, menuParent, activeNode, disabledKeyField, permits, currentNode, parentNode };
+    const reqalert = ref(props.labels.empty_alert);
+    const requiredField = () => { 
+      let itemname = currentNode?.value?.itemname;
+      if(!itemname) itemname = "";
+      let disabled = disabledKeyField.value || itemname.trim().length == 0;      
+      return disabled ? false : helpers.withMessage(reqalert, required); 
+    };
+    const requiredMessage = () => {
+      return helpers.withMessage(reqalert, required);
+    }
+    const validateRules = computed(() => { 
+      return {
+        progid: { required: requiredField() },
+        progtitle: { required: requiredMessage() },
+      } 
+    });
+    //this must specified: $scope: false in order to prevent validate all nested components validation
+    const v$ = useVuelidate(validateRules, itemData, { $lazy: true, $autoDirty: true, $scope: false });
+    return { v$, localData, itemData, menuData, menuParent, activeNode, disabledKeyField, permits, currentNode, parentNode, reqalert };
   },
   created() {
     watch(this.$props, (newProps) => {      
+      this.reqalert = newProps.labels.empty_alert;
       let sourceAry = [];
       let programs = newProps.dataCategory.tprog;
       programs.forEach((element) => {
@@ -171,7 +196,6 @@ export default {
         },
       });
       $("#progid").autocomplete("widget").addClass("autocomplete-fixed-height");
-      this.setupAlertFields();
     });
   },
   methods: {
@@ -185,7 +209,6 @@ export default {
       }
       return results;
     },
-
     reset(newData) {
       if(newData) {
         let permits = {};
@@ -205,6 +228,27 @@ export default {
       disableControls($("#cancelbutton"));
       this.startCancelRecord();
     },
+    async validateForm(focusing=true) {
+      const valid = await this.v$.$validate();
+      console.log("data:",this.itemData);
+      console.log("validate form: valid",valid);
+      console.log("error:",this.v$.$errors);
+      if(!valid) {
+        if(focusing) {
+          this.focusFirstError();
+        }
+        return false;
+      }
+      return true;
+    },
+    focusFirstError() {
+      if(this.v$.$errors && this.v$.$errors.length > 0) {
+        let input = this.v$.$errors[0].$property;
+        let el = this.$refs[input];
+        if(el) el.focus(); //if using ref
+        else $("#"+input).trigger("focus"); //if using id
+      }
+    },
     hasItemname() {
       if(this.currentNode) {
           let itemname = this.currentNode?.itemname;
@@ -212,32 +256,9 @@ export default {
       }
       return false;
     },
-    validateItems() {
-      let validator = null;
-      if(this.hasItemname()) {
-        if($.trim($("#progid").val())=="") {
-          $("#progid").addClass("is-invalid");
-          $("#progid").parent().addClass("has-error");
-          if(!validator) validator = "progid";
-        }
-      }
-      if($.trim($("#progtitle").val())=="") {
-        $("#progtitle").addClass("is-invalid");
-        $("#progtitle").parent().addClass("has-error");
-        if(!validator) validator = "progtitle";
-      }
-      if(validator) {
-        $("#"+validator).trigger("focus");
-        setTimeout(function() { 
-          $("#"+validator).addClass("is-invalid");
-          $("#"+validator).parent().addClass("has-error");
-        },100);
-        return false;
-      }
-      return true;
-    },
-    updateClick() {
-      if(!this.validateItems()) return;
+    async updateClick() {
+      let valid = await this.validateForm();
+      if(!valid) return;
       if(this.hasItemname()) {
         this.currentNode.itemname = this.itemData.progid;
         this.currentNode.text = this.itemData.progtitle;
@@ -270,6 +291,7 @@ export default {
     },
     resetRecord() {
       this.reset(defaultData);      
+      this.v$.$reset();
       this.disabledKeyField = true;
       this.menuData = {};
       this.itemData = {...defaultItemData};
@@ -320,6 +342,7 @@ export default {
           this.activeNode = null;
           this.currentNode = null;
           this.parentNode = null;
+          this.v$.$reset();
         }
       });	
     },
@@ -374,6 +397,7 @@ export default {
       this.currentNode = curnode;
       this.parentNode = parentnode;
       this.itemData = {progid: curnode?.itemname, progtitle: curnode?.text, parameters: curnode?.parameters, permits: {...this.permits, ...curnode?.permits} };
+      this.v$.$reset();
     },
     updateActiveNode(node) { 
       this.activeNode = node; 
@@ -384,13 +408,6 @@ export default {
     confirmRemoveNode(params, okFn, cancelFn,  width, height) {
       if(!confirmDialogBox("QS0034",params,"Do you want to remove this node?",okFn,cancelFn,width,height)) return false;
       return true;
-    },
-    setupAlertFields() {
-      $(".alert-input",$("#entryformpanel")).on("focus",function() { 
-        let ths = $(this);
-        ths.removeClass("is-invalid");
-        ths.parent().removeClass("has-error");
-      }); 
     },
     newTaskInfo(inserted,taskForm) {
       if(!this.currentNode) return;	
