@@ -4,7 +4,7 @@
   <div class="row data-layer">
     <div id="menubarcolumnlayer" class="col-md-7">
       <div id="menubarlayer" class="menubar-layer">
-        <ul id="menuitemlist" class="nav sidebar-nav" role="menu" v-show="hasMenu">
+        <ul id="menuitemlist" class="nav sidebar-nav menu-folder" role="menu" v-show="hasMenu">
           <TreeView ref="treeView" :node="menuData" :parent="menuParent" @node-selected="treeSelected" :activeNode="activeNode" @update-active-node="updateActiveNode" />
         </ul>
       </div>
