@@ -144,3 +144,4 @@ table.partition-table { background-color: slategray; }
 .pass-word { color:darkcyan; font-style: italic; }
 .go-word { color:lightseagreen; font-style: italic; }
 hr.entry-horizontal { border: 1px solid lightslategray; }
+.btn-explore { margin-top: 5px; }

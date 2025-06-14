@@ -50,7 +50,7 @@
     </template>
     <template v-slot:footer>
       <button ref="okbuttondialogitem" id="okbuttondialogitem" class="btn btn-dark btn-sm" @click="okClick"><em class="fa fa-check fa-btn-icon"></em>{{ labels.ok_button }}</button>
-      <button class="btn btn-dark btn-sm" data-dismiss="modal"><em class="fa fa-close fa-btn-icon"></em>{{ labels.cancel_button }}</button>
+      <button id="canceldialogbutton" class="btn btn-dark btn-sm" data-dismiss="modal"><em class="fa fa-close fa-btn-icon"></em>{{ labels.cancel_button }}</button>
     </template>
   </DialogForm>
 </template>

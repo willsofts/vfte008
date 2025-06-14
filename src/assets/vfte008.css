@@ -10,5 +10,8 @@ button.ctrl-linker { width:40px; }
 #searchpanel { margin-bottom: 0px; }
 #permitinfolayer { margin-bottom: 15px; }
 #permitinfolayerdialog { margin-bottom: 15px; margin-left: 15px; }
-.btn-explore { margin-top: 5px; }
 ul.menu-folder { list-style: none; }
+#okbuttondialogitem { min-width: 90px; }
+#updatebutton { min-width: 100px; }
+#okbuttondialogtask { min-width: 90px; }
+#entrypanel { margin-top: 0px; }
