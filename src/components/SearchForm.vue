@@ -10,7 +10,7 @@
             </select>
         </div>
         <div class="col-height col-md">
-            <button @click="exploreClick" class="btn btn-dark btn-sm btn-explore"><i class="fa fa-search fa-btn-icon" aria-hidden="true"></i>{{ labels.explore_button }}</button>
+            <button @click="exploreClick" id="explorebutton" class="btn btn-dark btn-sm btn-explore"><i class="fa fa-search fa-btn-icon" aria-hidden="true"></i>{{ labels.explore_button }}</button>
         </div>
     </div>
 </div>
